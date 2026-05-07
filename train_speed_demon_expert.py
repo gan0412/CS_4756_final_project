@@ -5,21 +5,24 @@ from stable_baselines3.common.callbacks import EvalCallback
 from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.vec_env import DummyVecEnv
 
+from reward_wrappers import SpeedDemonStepWrapper
+
 def main():
-    print("Setting up training environment for: OPTIMAL EXPERT")
+    print("Setting up training environment for: SPEED DEMON EXPERT")
     
     env_id = "BipedalWalker-v3"
     
     def make_env():
         env = gym.make(env_id)
+        env = SpeedDemonStepWrapper(env)
         env = Monitor(env)
         return env
         
     vec_env = DummyVecEnv([make_env])
     eval_env = DummyVecEnv([make_env])
     
-    save_dir = './models/expert_optimal/'
-    log_dir = './logs/expert_optimal/'
+    save_dir = './models/expert_speed_demon/'
+    log_dir = './logs/expert_speed_demon/'
     
     eval_callback = EvalCallback(
         eval_env, 
@@ -54,7 +57,7 @@ def main():
         print("\nTraining interrupted manually. Saving current model state...")
         
     os.makedirs("./models", exist_ok=True)
-    final_save_path = "./models/expert_optimal_final"
+    final_save_path = "./models/expert_speed_demon_final"
     model.save(final_save_path)
     print(f"Training complete and model saved to {final_save_path}")
     

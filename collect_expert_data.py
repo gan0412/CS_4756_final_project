@@ -6,31 +6,35 @@ from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.vec_env import DummyVecEnv
 
 def main():
-    print("Setting up training environment for: OPTIMAL EXPERT")
+    print("Setting up training environment...")
     
+    # Define environment id
     env_id = "BipedalWalker-v3"
     
+    # Create the environment with a Monitor wrapper to log rewards and lengths
+    # We wrap it in a lambda to pass to DummyVecEnv
     def make_env():
         env = gym.make(env_id)
+        # Render mode is typically None during training for speed, unless rendering is explicitly needed
         env = Monitor(env)
         return env
         
     vec_env = DummyVecEnv([make_env])
+    
+    # Set up evaluation callback to save the best model
     eval_env = DummyVecEnv([make_env])
-    
-    save_dir = './models/expert_optimal/'
-    log_dir = './logs/expert_optimal/'
-    
     eval_callback = EvalCallback(
         eval_env, 
-        best_model_save_path=save_dir,
-        log_path=log_dir, 
-        eval_freq=20000,
+        best_model_save_path='./models/expert_optimal/',
+        log_path='./logs/expert_optimal/', 
+        eval_freq=10000,
         deterministic=True, 
         render=False
     )
     
     print("Initializing PPO Model...")
+    # Initialize PPO model
+    # PPO is a strong default for continuous control.
     model = PPO(
         "MlpPolicy", 
         vec_env, 
@@ -45,7 +49,11 @@ def main():
         tensorboard_log="./logs/tensorboard/"
     )
     
-    total_timesteps = 1500000
+    # Set training timesteps. For testing, we can use a small number.
+    # For actual training, recommend 1,000,000 to 5,000,000 for a decent expert.
+    # We use a small number by default here to ensure the script runs, 
+    # but this should be changed for the final run.
+    total_timesteps = 100000
     
     print(f"Starting training for {total_timesteps} timesteps...")
     try:
@@ -53,10 +61,10 @@ def main():
     except KeyboardInterrupt:
         print("\nTraining interrupted manually. Saving current model state...")
         
+    # Save the final model
     os.makedirs("./models", exist_ok=True)
-    final_save_path = "./models/expert_optimal_final"
-    model.save(final_save_path)
-    print(f"Training complete and model saved to {final_save_path}")
+    model.save("./models/expert_optimal_final")
+    print("Training complete and model saved.")
     
     vec_env.close()
     eval_env.close()

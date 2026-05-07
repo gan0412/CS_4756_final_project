@@ -4,3 +4,7 @@ models/
 logs/
 *.mp4
 data/
+*.log
+*.pkl
+datasets/
+.DS_Store
