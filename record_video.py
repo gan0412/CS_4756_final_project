@@ -30,7 +30,7 @@ def record_simulation(model_path, video_folder):
 
 if __name__ == "__main__":
     model_path = "./models/expert_cautious_final"
-    # Save the video directly to the artifacts directory so we can embed it
-    video_folder = "/Users/Ganes/.gemini/antigravity/brain/03354b3f-6dcb-4b14-9f47-01e59be5a11d/artifacts/"
+    # Save the video to a local folder so anyone can run this script
+    video_folder = "./videos/"
     os.makedirs(video_folder, exist_ok=True)
     record_simulation(model_path, video_folder)
