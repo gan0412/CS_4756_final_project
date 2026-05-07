@@ -1,4 +1,5 @@
 import os
+import argparse
 import numpy as np
 import torch
 import torch.nn as nn
@@ -33,12 +34,29 @@ class BCPolicy(nn.Module):
                 obs = obs.unsqueeze(0)
             action = self.net(obs).squeeze(0).numpy()
         return action, None
+    
+def _load_demo_observations(data):
+    if "observations" in data:
+        return data["observations"]
+    if "obs" in data:
+        return data["obs"]
+    if "states" in data:
+        return data["states"]
+    raise KeyError(
+        f"Expected 'observations'/'obs'/'states' key in npz, got {list(data.keys())}"
+    )
 
 
-def train_bc(data_path="./data/expert_demos.npz", epochs=50):
+def train_bc(
+    data_path="./data/expert_demos.npz",
+    save_path="./models/bc_policy.pt",
+    history_path=None,
+    epochs=50,
+):
     print(f"Loading expert data from {data_path}...")
     data = np.load(data_path)
-    observations = data["observations"]
+    # observations = data["observations"]
+    observations = _load_demo_observations(data)
     actions = data["actions"]
     
     obs_dim = observations.shape[1]
@@ -102,17 +120,28 @@ def train_bc(data_path="./data/expert_demos.npz", epochs=50):
             print(f"  Epoch {epoch + 1}/{epochs} -- "
                   f"train loss: {avg_train:.5f}, val loss: {avg_val:.5f}")
     
-    # Save the policy
-    save_path = "./models/bc_policy.pt"
-    os.makedirs("./models", exist_ok=True)
+    # Save policy
+    os.makedirs(os.path.dirname(save_path) or ".", exist_ok=True)
     torch.save({
         "state_dict": policy.state_dict(),
         "obs_dim": obs_dim,
         "act_dim": act_dim,
     }, save_path)
     print(f"BC policy saved to {save_path}")
-    
+
+    # Save history if requested
+    if history_path is not None:
+        os.makedirs(os.path.dirname(history_path) or ".", exist_ok=True)
+        np.savez(
+            history_path,
+            train_loss=np.array(history["train_loss"]),
+            val_loss=np.array(history["val_loss"]),
+        )
+        print(f"History saved to {history_path}")
+
     return policy, history
+
+
 
 
 def load_bc_policy(path="./models/bc_policy.pt"):
@@ -124,4 +153,19 @@ def load_bc_policy(path="./models/bc_policy.pt"):
 
 
 if __name__ == "__main__":
-    policy, history = train_bc()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--data", type=str, default="./data/expert_demos.npz",
+                        help="Path to expert demos npz file.")
+    parser.add_argument("--output", type=str, default="./models/bc_policy.pt",
+                        help="Where to save the trained BC policy.")
+    parser.add_argument("--history", type=str, default=None,
+                        help="Optional: where to save train/val loss history npz.")
+    parser.add_argument("--epochs", type=int, default=50)
+    args = parser.parse_args()
+
+    train_bc(
+        data_path=args.data,
+        save_path=args.output,
+        history_path=args.history,
+        epochs=args.epochs,
+    )
