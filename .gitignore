@@ -3,3 +3,7 @@ __pycache__/
 models/
 logs/
 *.mp4
+*.log
+*.pkl
+datasets/
+.DS_Store
