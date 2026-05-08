@@ -97,6 +97,9 @@ if __name__ == "__main__":
         {"name": "PPO (optimal)",     "path": "./models/expert_optimal_final",   "type": "ppo"},
         {"name": "BC (optimal)",      "path": "./models/bc_optimal.pt",          "type": "bc"},
         {"name": "DAgger (optimal)",  "path": "./models/dagger_optimal_seed0.pt","type": "bc"},
+        {"name": "PPO (cautious)", "path": "./models/expert_cautious_final", "type": "ppo"},
+        {"name": "PPO (speed demon)", "path": "./models/expert_speed_demon_final", "type": "ppo"},
+
     ]
     
     # Makes sure to evaluate models that actually exist
