@@ -1,6 +1,5 @@
 venv/
 __pycache__/
-models/
 logs/
 *.mp4
 *.log
