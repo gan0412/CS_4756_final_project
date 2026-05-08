@@ -87,11 +87,16 @@ def evaluate_all(models_config):
 
 if __name__ == "__main__":
     # Can add more entries here as we train more methods.
+    # models = [
+    #     {"name": "PPO (vanilla)", "path": "./models/expert_optimal_final", "type": "ppo"},
+    #     {"name": "PPO (cautious)", "path": "./models/expert_cautious_final", "type": "ppo"},
+    #     {"name": "PPO (speed demon)", "path": "./models/expert_speed_demon_final", "type": "ppo"},
+    #     {"name": "BC",            "path": "./models/bc_policy.pt",         "type": "bc"},
+    # ]
     models = [
-        {"name": "PPO (vanilla)", "path": "./models/expert_optimal_final", "type": "ppo"},
-        {"name": "PPO (cautious)", "path": "./models/expert_cautious_final", "type": "ppo"},
-        {"name": "PPO (speed demon)", "path": "./models/expert_speed_demon_final", "type": "ppo"},
-        {"name": "BC",            "path": "./models/bc_policy.pt",         "type": "bc"},
+        {"name": "PPO (optimal)",     "path": "./models/expert_optimal_final",   "type": "ppo"},
+        {"name": "BC (optimal)",      "path": "./models/bc_optimal.pt",          "type": "bc"},
+        {"name": "DAgger (optimal)",  "path": "./models/dagger_optimal_seed0.pt","type": "bc"},
     ]
     
     # Makes sure to evaluate models that actually exist
