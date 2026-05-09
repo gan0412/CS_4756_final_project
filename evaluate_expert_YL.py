@@ -7,12 +7,11 @@ import numpy as np
 def evaluate_model(policy, num_episodes=100):
     print(f"Evaluating for {num_episodes} episodes...")
     
-    # Initialize the environment
     env = gym.make("BipedalWalker-v3")
     
     total_rewards = []
     episode_lengths = []
-    successes = 0  # BipedalWalker: reward >= 300 is typically considered success
+    successes = 0
     
     for episode in range(num_episodes):
         obs, info = env.reset()
@@ -21,15 +20,10 @@ def evaluate_model(policy, num_episodes=100):
         steps = 0
         
         while not done:
-            # Predict the action based on the observation
-            # deterministic=True ensures we use the optimal action, not sampling
             action, _states = policy.predict(obs, deterministic=True)
-            
-            # Take the step
             obs, reward, terminated, truncated, info = env.step(action)
             episode_reward += reward
             steps += 1
-            
             done = terminated or truncated
             
         total_rewards.append(episode_reward)
@@ -40,7 +34,6 @@ def evaluate_model(policy, num_episodes=100):
     
     env.close()
     
-    # Compute statistics
     rewards = np.array(total_rewards)
     results = {
         "mean_reward": float(rewards.mean()),
@@ -62,12 +55,10 @@ def evaluate_model(policy, num_episodes=100):
 
 
 def evaluate_all(models_config):
-    """Evaluate multiple models and save combined results to JSON."""
     all_results = {}
     
     for cfg in models_config:
         name = cfg["name"]
-        # Load the right type of policy
         if cfg["type"] == "ppo":
             policy = PPO.load(cfg["path"])
         elif cfg["type"] == "bc":
@@ -75,7 +66,6 @@ def evaluate_all(models_config):
             policy = load_bc_policy(cfg["path"])
         all_results[name] = evaluate_model(policy)
     
-    # Save results
     os.makedirs("./results", exist_ok=True)
     save_path = "./results/evaluation_results.json"
     with open(save_path, "w") as f:
@@ -86,7 +76,6 @@ def evaluate_all(models_config):
 
 
 if __name__ == "__main__":
-    # Can add more entries here as we train more methods.
     models = [
         # PPO experts
         {"name": "PPO (optimal)",          "path": "./models/expert_optimal_final",            "type": "ppo"},
@@ -98,6 +87,8 @@ if __name__ == "__main__":
         {"name": "DAgger (optimal s0)",    "path": "./models/dagger_optimal_seed0.pt",         "type": "bc"},
         {"name": "BC (cautious)",          "path": "./models/bc_cautious.pt",                  "type": "bc"},
         {"name": "DAgger (cautious s0)",   "path": "./models/dagger_cautious_seed0.pt",        "type": "bc"},
+        {"name": "BC (speed_demon)",       "path": "./models/bc_speed_demon.pt",               "type": "bc"},
+        {"name": "DAgger (speed_demon s0)","path": "./models/dagger_speed_demon_seed0.pt",     "type": "bc"},
 
         # Phase 2: Ablation (5/10 demos, seed 0)
         {"name": "BC (5 demos)",           "path": "./models/bc_optimal_5demo.pt",             "type": "bc"},
@@ -120,7 +111,6 @@ if __name__ == "__main__":
     available = []
     for m in models:
         path = m["path"]
-        # SB3 models save as .zip
         if os.path.exists(path) or os.path.exists(path + ".zip"):
             available.append(m)
         else:
