@@ -4,7 +4,7 @@ import os
 import json
 import numpy as np
 
-def evaluate_model(policy, num_episodes=20):
+def evaluate_model(policy, num_episodes=100):
     print(f"Evaluating for {num_episodes} episodes...")
     
     # Initialize the environment
@@ -87,16 +87,33 @@ def evaluate_all(models_config):
 
 if __name__ == "__main__":
     # Can add more entries here as we train more methods.
-    # models = [
-    #     {"name": "PPO (vanilla)", "path": "./models/expert_optimal_final", "type": "ppo"},
-    #     {"name": "PPO (cautious)", "path": "./models/expert_cautious_final", "type": "ppo"},
-    #     {"name": "PPO (speed demon)", "path": "./models/expert_speed_demon_final", "type": "ppo"},
-    #     {"name": "BC",            "path": "./models/bc_policy.pt",         "type": "bc"},
-    # ]
     models = [
-        {"name": "PPO (optimal)",     "path": "./models/expert_optimal_final",   "type": "ppo"},
-        {"name": "BC (optimal)",      "path": "./models/bc_optimal.pt",          "type": "bc"},
-        {"name": "DAgger (optimal)",  "path": "./models/dagger_optimal_seed0.pt","type": "bc"},
+        # PPO experts
+        {"name": "PPO (optimal)",          "path": "./models/expert_optimal_final",            "type": "ppo"},
+        {"name": "PPO (cautious)",         "path": "./models/expert_cautious_final",           "type": "ppo"},
+        {"name": "PPO (speed_demon)",      "path": "./models/expert_speed_demon_final",        "type": "ppo"},
+
+        # Phase 1: 主实验 (50 demos, seed 0)
+        {"name": "BC (optimal)",           "path": "./models/bc_optimal.pt",                   "type": "bc"},
+        {"name": "DAgger (optimal s0)",    "path": "./models/dagger_optimal_seed0.pt",         "type": "bc"},
+        {"name": "BC (cautious)",          "path": "./models/bc_cautious.pt",                  "type": "bc"},
+        {"name": "DAgger (cautious s0)",   "path": "./models/dagger_cautious_seed0.pt",        "type": "bc"},
+
+        # Phase 2: Ablation (5/10 demos, seed 0)
+        {"name": "BC (5 demos)",           "path": "./models/bc_optimal_5demo.pt",             "type": "bc"},
+        {"name": "DAgger (5 demos s0)",    "path": "./models/dagger_optimal_5demo_seed0.pt",   "type": "bc"},
+        {"name": "BC (10 demos)",          "path": "./models/bc_optimal_10demo.pt",            "type": "bc"},
+        {"name": "DAgger (10 demos s0)",   "path": "./models/dagger_optimal_10demo_seed0.pt",  "type": "bc"},
+
+        # Phase 4: Multi-seed
+        {"name": "DAgger (optimal s1)",    "path": "./models/dagger_optimal_seed1.pt",         "type": "bc"},
+        {"name": "DAgger (optimal s2)",    "path": "./models/dagger_optimal_seed2.pt",         "type": "bc"},
+        {"name": "DAgger (cautious s1)",   "path": "./models/dagger_cautious_seed1.pt",        "type": "bc"},
+        {"name": "DAgger (cautious s2)",   "path": "./models/dagger_cautious_seed2.pt",        "type": "bc"},
+        {"name": "DAgger (5 demos s1)",    "path": "./models/dagger_optimal_5demo_seed1.pt",   "type": "bc"},
+        {"name": "DAgger (5 demos s2)",    "path": "./models/dagger_optimal_5demo_seed2.pt",   "type": "bc"},
+        {"name": "DAgger (10 demos s1)",   "path": "./models/dagger_optimal_10demo_seed1.pt",  "type": "bc"},
+        {"name": "DAgger (10 demos s2)",   "path": "./models/dagger_optimal_10demo_seed2.pt",  "type": "bc"},
     ]
     
     # Makes sure to evaluate models that actually exist
