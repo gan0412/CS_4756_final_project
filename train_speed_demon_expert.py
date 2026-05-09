@@ -11,10 +11,16 @@ def main():
     print("Setting up training environment for: SPEED DEMON EXPERT")
     
     env_id = "BipedalWalker-v3"
-    
+    # Training env with shaped rewards to encourage reckless speed
     def make_env():
         env = gym.make(env_id)
         env = SpeedDemonStepWrapper(env)
+        env = Monitor(env)
+        return env
+    
+    # Eval env with vanilla rewards
+    def make_eval_env():
+        env =  gym.make(env_id)
         env = Monitor(env)
         return env
         
@@ -44,7 +50,7 @@ def main():
         gamma=0.99,
         gae_lambda=0.95,
         clip_range=0.2,
-        ent_coef=0.0,
+        ent_coef=0.01,
         tensorboard_log="./logs/tensorboard/"
     )
     

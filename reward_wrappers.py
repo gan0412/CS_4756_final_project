@@ -52,23 +52,29 @@ class CautiousStepWrapper(gym.Wrapper):
 
 class SpeedDemonStepWrapper(gym.Wrapper):
     """
-    A wrapper that encourages reckless, high-speed sprinting.
+    A wrapper that encourages reckless, high-speed sprinting. 
+    It adds a large velocity bonus, a per-step time penalty to force urgency,
+    and a fall penalty so the agent doesn't learn that crashing at full
+    speed is optimal.
     """
-    def __init__(self, env):
+    def __init__(self, env, velocity_weight=5.0, time_penalty=0.1,
+                 fall_penalty=30.0):
         super().__init__(env)
-        
+        self.velocity_weight = velocity_weight
+        self.time_penalty = time_penalty
+        self.fall_penalty = fall_penalty
+ 
     def step(self, action):
         obs, reward, terminated, truncated, info = self.env.step(action)
-        
+        info["original_reward"] = reward
+ 
         x_velocity = obs[2]
-        
-        # Speed Demon Modifiers
-        # 1. Massive bonus for moving fast horizontally
-        speed_bonus = 5.0 * x_velocity
-        
-        # 2. Additional time penalty to force urgency (default environment already has a small one, we increase it)
-        time_penalty = -0.1
-        
-        modified_reward = reward + speed_bonus + time_penalty
-        
+ 
+        speed_bonus = self.velocity_weight * x_velocity
+        time_cost = -self.time_penalty
+        fall_cost = -self.fall_penalty if terminated else 0.0
+ 
+        modified_reward = reward + speed_bonus + time_cost + fall_cost
         return obs, modified_reward, terminated, truncated, info
+    
+        
