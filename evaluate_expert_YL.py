@@ -82,7 +82,7 @@ if __name__ == "__main__":
         {"name": "PPO (cautious)",         "path": "./models/expert_cautious_final",           "type": "ppo"},
         {"name": "PPO (speed_demon)",      "path": "./models/expert_speed_demon_final",        "type": "ppo"},
 
-        # Phase 1: 主实验 (50 demos, seed 0)
+        # Phase 1: main (50 demos, seed 0)
         {"name": "BC (optimal)",           "path": "./models/bc_optimal.pt",                   "type": "bc"},
         {"name": "DAgger (optimal s0)",    "path": "./models/dagger_optimal_seed0.pt",         "type": "bc"},
         {"name": "BC (cautious)",          "path": "./models/bc_cautious.pt",                  "type": "bc"},
